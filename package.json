@@ -1,0 +1,28 @@
+{
+  "name": "proman-express-bodroghykristof",
+  "version": "1.0.0",
+  "description": "The purposse of this project to re-write the backend of existing project proman-sandyrnelson.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server.js",
+    "prod": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bodroghykristof/proman-express-bodroghykristof.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "start": "node server.js",
+  "bugs": {
+    "url": "https://github.com/bodroghykristof/proman-express-bodroghykristof/issues"
+  },
+  "homepage": "https://github.com/bodroghykristof/proman-express-bodroghykristof#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4",
+    "pg": "^8.3.0"
+  }
+}
