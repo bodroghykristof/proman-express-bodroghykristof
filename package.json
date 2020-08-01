@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "The purposse of this project to re-write the backend of existing project proman-sandyrnelson.",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "nodemon server.js",
     "prod": "node server.js",
