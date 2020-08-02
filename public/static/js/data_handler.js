@@ -105,8 +105,8 @@ export let dataHandler = {
                 callback(response);
             });
     },
-    addCard: function(boardId, title, statusId, callback) {
-        this._api_post('/add-card', {title: title, board_id: boardId, status_id: statusId}, (response) => {
+    addCard: function(boardId, title, columnId, callback) {
+        this._api_post('/cards', {title, boardId, columnId}, (response) => {
             this._data['card_position'] = response;
             callback(response);
         });

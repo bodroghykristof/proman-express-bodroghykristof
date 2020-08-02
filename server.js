@@ -195,6 +195,23 @@ app.get('/cards', async (req, res) => {
     }
 });
 
+app.post('/cards', async (req, res) => {
+    try {
+        const title = req.body.title;
+        const boardId = req.body.boardId;
+        const columnId = req.body.columnId;
+        const result = await pool.query(`
+            INSERT INTO card(title, board_id, status_id, order_by_position)
+            SELECT $1, $2, $3, MAX(order_by_position) + 1
+            FROM card
+            RETURNING id, order_by_position
+            `, [title, boardId, columnId]);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
 function getExistingColumnRecord(title) {
     return pool.query(`
         SELECT id
