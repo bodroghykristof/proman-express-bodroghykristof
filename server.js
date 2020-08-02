@@ -31,6 +31,21 @@ app.post('/boards', async (req, res) => {
     }
 });
 
+app.put('/boards', async (req, res) => {
+    try {
+        const newTitle = req.body.title;
+        const boardId = req.body.boardId;
+        const result = await pool.query(
+            `UPDATE board
+            SET title = $1
+            WHERE id = $2`
+            , [newTitle, boardId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('An error occured: ' + error);
+    }
+});
+
 app.get('/columns', async (req, res) => {
     try {
         const result = await pool.query(`

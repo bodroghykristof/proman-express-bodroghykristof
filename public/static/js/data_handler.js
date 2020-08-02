@@ -53,8 +53,14 @@ export let dataHandler = {
         });
     },
     createNewBoard: function (boardTitle, callback) {
-        this._api_post('/boards', {boardTitle, boardTitle}, (response) => {
+        this._api_post('/boards', {boardTitle}, (response) => {
             this._data['latest_board_id'] = response;
+            callback(response);
+        })
+    },
+    renameBoard: function (title, boardId, callback) {
+        this._api_put('/boards', {title, boardId}, (response) => {
+            this._data['updated_board_id'] = response;
             callback(response);
         })
     },
@@ -69,12 +75,6 @@ export let dataHandler = {
                 this._data['title'] = response;
                 callback(response);
             });
-    },
-    renameBoard: function (title, boardId, callback) {
-        this._api_put('/rename-board', {title: title, board_id: boardId}, (response) => {
-            this._data['updated_board_id'] = response;
-            callback(response);
-        })
     },
     changeBoardVisibility: function (boardId) {
         this._api_put('/change-board-visibility', boardId, (response) => {
