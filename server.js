@@ -35,11 +35,24 @@ app.put('/boards', async (req, res) => {
     try {
         const newTitle = req.body.title;
         const boardId = req.body.boardId;
-        const result = await pool.query(
+        await pool.query(
             `UPDATE board
             SET title = $1
             WHERE id = $2`
             , [newTitle, boardId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('An error occured: ' + error);
+    }
+});
+
+app.delete('/boards', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        pool.query(
+            `DELETE FROM board
+            WHERE id = $1`
+            , [boardId]);
         res.json(boardId);
     } catch (error) {
         console.log('An error occured: ' + error);
