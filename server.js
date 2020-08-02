@@ -92,6 +92,43 @@ app.get('/columns', async (req, res) => {
     }
 });
 
+app.post('/columns', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        const title = req.body.title;
+        let columnId;
+        const existingColumnRecord = await pool.query(
+            `SELECT id
+            FROM status
+            WHERE name = $1`
+            , [title]);
+        if (existingColumnRecord.rows.length !== 0) {
+            columnId = existingColumnRecord.rows[0].id;
+        } else {
+            console.log('Here');
+            const result = await pool.query(
+                `INSERT INTO status(name)
+                VALUES ($1)
+                RETURNING id
+                `, [title]);
+            columnId = result.rows[0].id;
+        }
+        await pool.query(
+            `INSERT INTO column_in_board
+                (board_id, status_id, order_by_position)
+            VALUES ($1, $2,
+                (SELECT MAX(order_by_position) + 1
+                FROM column_in_board
+                WHERE board_id = $1)
+                )
+            `, [boardId, columnId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('Error ' + error);
+        res.json('error');
+    }
+});
+
 
 app.get('/cards', async (req, res) => {
     try {
