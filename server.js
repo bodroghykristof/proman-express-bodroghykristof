@@ -212,6 +212,21 @@ app.post('/cards', async (req, res) => {
     }
 });
 
+app.put('/cards', async (req, res) => {
+    try {
+        const title = req.body.title;
+        const cardId = req.body.cardId;
+        await pool.query(`
+            UPDATE card
+            SET title = $1
+            WHERE id = $2
+            `, [title, cardId]);
+        res.json(cardId);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
 function getExistingColumnRecord(title) {
     return pool.query(`
         SELECT id

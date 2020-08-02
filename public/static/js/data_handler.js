@@ -112,7 +112,7 @@ export let dataHandler = {
         });
     },
     renameCard: function(cardId, title, callback) {
-        this._api_put('/rename-card', {card_id: cardId, title: title}, (response) => {
+        this._api_put('/cards', {cardId, title}, (response) => {
             this._data['card_id'] = response;
             callback(response);
         })
