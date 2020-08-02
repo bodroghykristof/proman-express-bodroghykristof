@@ -1,20 +1,12 @@
-// this object contains the functions which handle the data and its reading/writing
-// feel free to extend and change to fit your needs
-
-// (watch out: when you would like to use a property/function of an object from the
-// object itself then you must use the 'this' keyword before. For example: 'this._data' below)
 export let dataHandler = {
-    _data: {}, // it is a "cache for all data received: boards, cards and statuses. It is not accessed from outside.
+    _data: {},
     _api_get: function (url, callback) {
-        // it is not called from outside
-        // loads data from API, parses it and calls the callback with it
-
         fetch(url, {
             method: 'GET',
             credentials: 'same-origin'
         })
-        .then(response => response.json())  // parse the response as JSON
-        .then(json_response => callback(json_response));  // Call the `callback` with the returned object
+        .then(response => response.json())
+        .then(json_response => callback(json_response));
     },
     _api_post: function (url, data, callback, errorCallback) {
         fetch(url, {
@@ -54,56 +46,46 @@ export let dataHandler = {
         .then(response => response.json())
         .then(json_response => callback(json_response))
     },
-    init: function () {
-    },
     getBoards: function (callback) {
-        // the boards are retrieved and then the callback function is called with the boards
-        // Here we use an arrow function to keep the value of 'this' on dataHandler.
-        //    if we would use function(){...} here, the value of 'this' would change.
-        this._api_get('/get-boards', (response) => {
+        this._api_get('/boards', (response) => {
             this._data['boards'] = response;
             callback(response);
         });
     },
-    getBoard: function (boardId, callback) {
-        // the board is retrieved and then the callback function is called with the board
-    },
-    getStatuses: function (callback) {
-        // the statuses are retrieved and then the callback function is called with the statuses
-        this._api_get('/get-statuses', (response) => {
-                this._data['status'] = response;
-                callback(response);
-            });
-    },
-    getStatus: function (statusId, callback) {
-        // the status is retrieved and then the callback function is called with the status
-    },
-    getCards: function (callback) {
-        // the cards are retrieved and then the callback function is called with the cards
-        this._api_get('/get-cards', (response) => {
-                this._data['title'] = response;
-                callback(response);
-            });
-    },
-    getCard: function (cardId, callback) {
-        // the card is retrieved and then the callback function is called with the card
-    },
     createNewBoard: function (boardTitle, callback) {
-        this._api_post('/create-new-board', boardTitle, (response) => {
+        this._api_post('/boards', {boardTitle}, (response) => {
             this._data['latest_board_id'] = response;
             callback(response);
         })
     },
     renameBoard: function (title, boardId, callback) {
-        this._api_put('/rename-board', {title: title, board_id: boardId}, (response) => {
+        this._api_put('/boards', {title, boardId}, (response) => {
             this._data['updated_board_id'] = response;
             callback(response);
         })
     },
-    changeBoardVisibility: function (boardId) {
-        this._api_put('/change-board-visibility', boardId, (response) => {
-            this._data['updated_board_id'] = response;
+    deleteBoard: function (boardId, callback) {
+        this._api_delete('/boards', {boardId}, (response) => {
+            this._data['deleted_board_id'] = response;
+            callback(response);
         })
+    },
+    changeBoardVisibility: function (boardId) {
+        this._api_put('/boards/visibility', {boardId}, (response) => {
+            this._data['updated_visibility_board_id'] = response;
+        })
+    },
+    getStatuses: function (callback) {
+        this._api_get('/columns', (response) => {
+                this._data['status'] = response;
+                callback(response);
+            });
+    },
+    getCards: function (callback) {
+        this._api_get('/cards', (response) => {
+                this._data['title'] = response;
+                callback(response);
+            });
     },
     addColumn: function (boardId, title, callback, errorCallback) {
         this._api_post('/add-column', {title: title, board_id: boardId}, (response) => {
@@ -131,14 +113,7 @@ export let dataHandler = {
     },
     updateCard: function (cardId, position, columnId) {
         this._api_put('/update-card', {card_id: cardId, position: position, columnId: columnId}, (response) => {
-            // this._data['card_id'] = response;
             return response;
-        })
-    },
-    deleteBoard: function (boardId, callback) {
-        this._api_delete('/delete-board', {board_id: boardId}, (response) => {
-            this._data['board_id'] = response;
-            callback(response);
         })
     },
     deleteColumn: function (statusId, boardId, callback) {

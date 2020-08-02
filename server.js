@@ -3,19 +3,77 @@ import pool from "./database.js";
 
 const app = express();
 app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 const port = 3000;
 
 
-app.get('/get-boards', async (req, res) => {
+app.get('/boards', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM board ORDER BY id');
         res.json(result.rows);
     } catch (error) {
-        console.log('An error occured: ' + error)
+        console.log('An error occured: ' + error);
     }
 });
 
-app.get('/get-statuses', async (req, res) => {
+app.post('/boards', async (req, res) => {
+    try {
+        const newTitle = req.body.boardTitle;
+        const result = await pool.query(
+            `INSERT INTO board(title)
+            VALUES ($1)
+            RETURNING id`
+            , [newTitle]);
+        res.json(result);
+    } catch (error) {
+        console.log('An error occured: ' + error);
+    }
+});
+
+app.put('/boards', async (req, res) => {
+    try {
+        const newTitle = req.body.title;
+        const boardId = req.body.boardId;
+        await pool.query(
+            `UPDATE board
+            SET title = $1
+            WHERE id = $2`
+            , [newTitle, boardId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('An error occured: ' + error);
+    }
+});
+
+app.delete('/boards', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        pool.query(
+            `DELETE FROM board
+            WHERE id = $1`
+            , [boardId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('An error occured: ' + error);
+    }
+});
+
+app.put('/boards/visibility', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        await pool.query(
+            `UPDATE board
+            SET is_active = NOT is_active
+            WHERE id = $1`
+            , [boardId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('An error occured: ' + error);
+    }
+});
+
+app.get('/columns', async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT
@@ -35,7 +93,7 @@ app.get('/get-statuses', async (req, res) => {
 });
 
 
-app.get('/get-cards', async (req, res) => {
+app.get('/cards', async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT card.id AS id, 
