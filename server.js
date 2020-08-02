@@ -6,7 +6,7 @@ app.use(express.static('public'));
 const port = 3000;
 
 
-app.get('/get-boards', async (req, res) => {
+app.get('/boards', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM board ORDER BY id');
         res.json(result.rows);
@@ -15,7 +15,7 @@ app.get('/get-boards', async (req, res) => {
     }
 });
 
-app.get('/get-statuses', async (req, res) => {
+app.get('/columns', async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT
@@ -35,7 +35,7 @@ app.get('/get-statuses', async (req, res) => {
 });
 
 
-app.get('/get-cards', async (req, res) => {
+app.get('/cards', async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT card.id AS id, 
