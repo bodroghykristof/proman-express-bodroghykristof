@@ -87,9 +87,9 @@ export let dataHandler = {
             callback(response);
         })
     },
-    renameColumn: function (title, boardId, statusId, callback, errorCallback) {
-        this._api_put('/rename-column', {title, boardId, statusId}, (response) => {
-            this._data['updated_column_id'] = response;
+    renameColumn: function (title, boardId, columnId, callback, errorCallback) {
+        this._api_put('/columns', {title, boardId, columnId}, (response) => {
+            this._data['renamed_column_id'] = response;
             callback(response);
         }, (error) => errorCallback(error))
     },

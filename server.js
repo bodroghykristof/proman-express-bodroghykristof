@@ -97,20 +97,11 @@ app.post('/columns', async (req, res) => {
         const boardId = req.body.boardId;
         const title = req.body.title;
         let columnId;
-        const existingColumnRecord = await pool.query(
-            `SELECT id
-            FROM status
-            WHERE name = $1`
-            , [title]);
+        const existingColumnRecord = await getExistingColumnRecord(title);
         if (existingColumnRecord.rows.length !== 0) {
             columnId = existingColumnRecord.rows[0].id;
         } else {
-            console.log('Here');
-            const result = await pool.query(
-                `INSERT INTO status(name)
-                VALUES ($1)
-                RETURNING id
-                `, [title]);
+            const result = await registerNewColumn(title)
             columnId = result.rows[0].id;
         }
         await pool.query(
@@ -123,6 +114,41 @@ app.post('/columns', async (req, res) => {
                 )
             `, [boardId, columnId]);
         res.json(boardId);
+    } catch (error) {
+        console.log('Error ' + error);
+        res.json('error');
+    }
+});
+
+app.put('/columns', async (req, res) => {
+    try {
+        let columnId;
+        const boardId = req.body.boardId;
+        const originalColumnId = req.body.columnId;
+        const title = req.body.title;
+        const existingColumnRecord = await getExistingColumnRecord(title);
+        if (existingColumnRecord.rows.length !== 0) {
+            columnId = existingColumnRecord.rows[0].id;
+        } else {
+            const result = await registerNewColumn(title)
+            columnId = result.rows[0].id;
+        }
+        if (originalColumnId !== columnId) {
+            await pool.query(
+                `
+                UPDATE column_in_board
+                SET status_id = $1
+                WHERE board_id = $2 AND status_id = $3
+                `, [columnId, boardId, originalColumnId]);
+            await pool.query(
+                `
+                UPDATE card
+                SET status_id = $1
+                WHERE board_id = $2 AND status_id = $3
+                `, [columnId, boardId, originalColumnId]
+            )
+        }
+        res.json(columnId);
     } catch (error) {
         console.log('Error ' + error);
         res.json('error');
@@ -148,6 +174,23 @@ app.get('/cards', async (req, res) => {
         console.log('An error occured: ' + error)
     }
 });
+
+function getExistingColumnRecord(title) {
+    return pool.query(`
+        SELECT id
+        FROM status
+        WHERE name = $1
+        `,[title]);
+}
+
+function registerNewColumn(title) {
+    return pool.query(
+        `
+        INSERT INTO status(name)
+        VALUES ($1)
+        RETURNING id
+        `, [title]);
+}
 
 
 app.listen(port, () => console.log(`Server initialized on port ${port}`));

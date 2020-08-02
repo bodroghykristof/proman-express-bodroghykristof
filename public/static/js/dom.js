@@ -344,7 +344,7 @@ function editColumnTitle(event) {
     let deleteX = event.target.parentNode.querySelector('i');
     deleteX.classList.add('hide-content');
     let currentTitle = this.innerHTML;
-    this.innerHTML = `<span class="column-edit-save"><input type="text" id="edited-board-title" value="${currentTitle}" autocomplete="off">
+    this.innerHTML = `<span class="column-edit-save"><input type="text" id="edited-column-title" value="${currentTitle}" autocomplete="off">
                         <button class="board-add" id="save-edited-column">Save</button></span>`;
     let saveButton = document.querySelector('#save-edited-column');
     removeAllEventListeners();
@@ -355,7 +355,7 @@ function saveNewColumnName(event) {
     event.preventDefault();
     let boardId = this.closest('section').id.split('-')[1];
     let columnId = this.closest('.board-column').querySelector('.board-column-content').id.split('-')[2];
-    let newTitle = document.querySelector('#edited-board-title').value;
+    let newTitle = document.querySelector('#edited-column-title').value;
     if (newTitle) {
         dataHandler.renameColumn(newTitle, boardId, columnId, (result) => displayEditedColumn(result));
     }
@@ -363,11 +363,10 @@ function saveNewColumnName(event) {
 }
 
 function displayEditedColumn(result) {
-    console.log(result);
     if (result !== 'error') {
         let board_id = result[0];
         let column_id = result[1];
-        let editedTitle = document.querySelector('#edited-board-title');
+        let editedTitle = document.querySelector('#edited-column-title');
         let newTitle = editedTitle.value;
         let titleContainer = editedTitle.closest('.board-column-title');
         let deleteX = titleContainer.parentNode.querySelector('i');
@@ -375,8 +374,8 @@ function displayEditedColumn(result) {
         titleContainer.innerHTML = newTitle;
         titleContainer.closest('.board-column').querySelector('.board-column-content').id = `column-${board_id}-${column_id}`;
         addAllEventListeners();
-    } else {
-        displayTakenColumnError();
+    } else{
+        displayTakenColumnError('#edited-column-title');
     }
 }
 
