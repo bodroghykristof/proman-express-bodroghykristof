@@ -216,11 +216,26 @@ app.put('/cards', async (req, res) => {
     try {
         const title = req.body.title;
         const cardId = req.body.cardId;
-        await pool.query(`
+        await pool.query(
+            `
             UPDATE card
             SET title = $1
             WHERE id = $2
             `, [title, cardId]);
+        res.json(cardId);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
+app.delete('/cards', async (req, res) => {
+    try {
+        const cardId = req.body.cardId;
+        await pool.query(
+            `
+            DELETE FROM card
+            WHERE id = $1
+            `, [cardId]);
         res.json(cardId);
     } catch (error) {
         console.log('An error occured: ' + error)
