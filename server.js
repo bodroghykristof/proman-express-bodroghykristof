@@ -155,6 +155,26 @@ app.put('/columns', async (req, res) => {
     }
 });
 
+app.delete('/columns', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        const columnId = req.body.columnId;
+        await pool.query(
+            `
+            DELETE FROM column_in_board
+            WHERE board_id = $1 AND status_id = $2
+            `, [boardId, columnId]);
+        await pool.query(
+            `
+            DELETE FROM card
+            WHERE board_id = $1 AND status_id = $2
+            `, [boardId, columnId]);
+        res.json({boardId, columnId});
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
 
 app.get('/cards', async (req, res) => {
     try {

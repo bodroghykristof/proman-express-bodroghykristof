@@ -591,14 +591,14 @@ function removeColumn() {
 }
 
 function removeColumnFromDOM(data) {
-    let boardId = data[0];
-    let statusId = data[1];
+    let boardId = data['boardId'];
+    let columnId = data['columnId'];
     const sections = document.querySelectorAll('section');
     for (let section of sections) {
         if (section.id.split('-')[1] === boardId) {
             const columns = section.querySelectorAll('.board-column');
             for (let column of columns) {
-                if (column.querySelector('.board-column-content').id.split('-')[2] === statusId) {
+                if (column.querySelector('.board-column-content').id.split('-')[2] === columnId) {
                     column.remove();
                 }
             }

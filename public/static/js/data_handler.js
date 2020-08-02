@@ -93,6 +93,12 @@ export let dataHandler = {
             callback(response);
         }, (error) => errorCallback(error))
     },
+    deleteColumn: function (columnId, boardId, callback) {
+        this._api_delete('/columns', {columnId, boardId}, (response) => {
+            this._data['deleted_column_id'] = response;
+            callback(response);
+        })
+    },
     getCards: function (callback) {
         this._api_get('/cards', (response) => {
                 this._data['title'] = response;
@@ -114,12 +120,6 @@ export let dataHandler = {
     updateCard: function (cardId, position, columnId) {
         this._api_put('/update-card', {card_id: cardId, position: position, columnId: columnId}, (response) => {
             return response;
-        })
-    },
-    deleteColumn: function (statusId, boardId, callback) {
-        this._api_delete('/delete-column', {status_id: statusId, board_id: boardId}, (response) => {
-            this._data['column_id'] = response;
-            callback(response);
         })
     },
     deleteCard: function (cardId, callback) {
