@@ -92,6 +92,89 @@ app.get('/columns', async (req, res) => {
     }
 });
 
+app.post('/columns', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        const title = req.body.title;
+        let columnId;
+        const existingColumnRecord = await getExistingColumnRecord(title);
+        if (existingColumnRecord.rows.length !== 0) {
+            columnId = existingColumnRecord.rows[0].id;
+        } else {
+            const result = await registerNewColumn(title)
+            columnId = result.rows[0].id;
+        }
+        await pool.query(
+            `INSERT INTO column_in_board
+                (board_id, status_id, order_by_position)
+            VALUES ($1, $2,
+                (SELECT MAX(order_by_position) + 1
+                FROM column_in_board
+                WHERE board_id = $1)
+                )
+            `, [boardId, columnId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('Error ' + error);
+        res.json('error');
+    }
+});
+
+app.put('/columns', async (req, res) => {
+    try {
+        let columnId;
+        const boardId = req.body.boardId;
+        const originalColumnId = req.body.columnId;
+        const title = req.body.title;
+        const existingColumnRecord = await getExistingColumnRecord(title);
+        if (existingColumnRecord.rows.length !== 0) {
+            columnId = existingColumnRecord.rows[0].id;
+        } else {
+            const result = await registerNewColumn(title)
+            columnId = result.rows[0].id;
+        }
+        if (originalColumnId !== columnId) {
+            await pool.query(
+                `
+                UPDATE column_in_board
+                SET status_id = $1
+                WHERE board_id = $2 AND status_id = $3
+                `, [columnId, boardId, originalColumnId]);
+            await pool.query(
+                `
+                UPDATE card
+                SET status_id = $1
+                WHERE board_id = $2 AND status_id = $3
+                `, [columnId, boardId, originalColumnId]
+            )
+        }
+        res.json(columnId);
+    } catch (error) {
+        console.log('Error ' + error);
+        res.json('error');
+    }
+});
+
+app.delete('/columns', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        const columnId = req.body.columnId;
+        await pool.query(
+            `
+            DELETE FROM column_in_board
+            WHERE board_id = $1 AND status_id = $2
+            `, [boardId, columnId]);
+        await pool.query(
+            `
+            DELETE FROM card
+            WHERE board_id = $1 AND status_id = $2
+            `, [boardId, columnId]);
+        res.json({boardId, columnId});
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
 
 app.get('/cards', async (req, res) => {
     try {
@@ -111,6 +194,23 @@ app.get('/cards', async (req, res) => {
         console.log('An error occured: ' + error)
     }
 });
+
+function getExistingColumnRecord(title) {
+    return pool.query(`
+        SELECT id
+        FROM status
+        WHERE name = $1
+        `,[title]);
+}
+
+function registerNewColumn(title) {
+    return pool.query(
+        `
+        INSERT INTO status(name)
+        VALUES ($1)
+        RETURNING id
+        `, [title]);
+}
 
 
 app.listen(port, () => console.log(`Server initialized on port ${port}`));

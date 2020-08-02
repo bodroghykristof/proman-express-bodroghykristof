@@ -9,7 +9,7 @@ export let dom = {
     loadBoards: function () {
         dataHandler.getBoards(function (boards) {
             dom.showBoards(boards)
-            dataHandler.getStatuses(function (columns) {
+            dataHandler.getColumns(function (columns) {
                 dom.showColumns(columns);
                 dataHandler.getCards(function (cards) {
                     dom.showCards(cards);
@@ -247,8 +247,7 @@ function saveNewColumn() {
     let boardId = this.closest("section").id.split('-')[1];
     let columnTitle = document.getElementById('new-column-title').value;
     if (columnTitle) {
-        dataHandler.addColumn(boardId, columnTitle, id => displayNewColumn(id),
-            (error) => displayTakenColumnError(error, '#new-column-title'));
+        dataHandler.addColumn(boardId, columnTitle, id => displayNewColumn(id));
     }
 }
 
@@ -279,17 +278,21 @@ function displayNewTitle(id) {
 }
 
 function displayNewColumn(id) {
-    let columnTitle = document.getElementById('new-column-title').value;
-    let boardId = document.getElementById('new-column-title').closest("section").id.split('-')[1];
-    let boardColumns = document.querySelector(`#board-${boardId}`);
-    let columnDiv = boardColumns.querySelector('.new-board-column');
-    columnDiv.innerHTML =
-        `<div class="board-column-title">${columnTitle}</div>
-         <i class="fa fa-times-circle column-delete" aria-hidden="true"></i>
-         <div class="board-column-content" id="column-${boardId}-${id}"></div>`
-    columnDiv.classList.remove('new-board-column');
-    columnDiv.classList.add('board-column');
-    addAllEventListeners();
+    if (id !== 'error') {
+        let columnTitle = document.getElementById('new-column-title').value;
+        let boardId = document.getElementById('new-column-title').closest("section").id.split('-')[1];
+        let boardColumns = document.querySelector(`#board-${boardId}`);
+        let columnDiv = boardColumns.querySelector('.new-board-column');
+        columnDiv.innerHTML =
+            `<div class="board-column-title">${columnTitle}</div>
+            <i class="fa fa-times-circle column-delete" aria-hidden="true"></i>
+            <div class="board-column-content" id="column-${boardId}-${id}"></div>`
+        columnDiv.classList.remove('new-board-column');
+        columnDiv.classList.add('board-column');
+        addAllEventListeners();
+    } else {
+        displayTakenColumnError('#new-column-title');
+    }
 }
 
 function displayEditedTitle(boardId) {
@@ -341,7 +344,7 @@ function editColumnTitle(event) {
     let deleteX = event.target.parentNode.querySelector('i');
     deleteX.classList.add('hide-content');
     let currentTitle = this.innerHTML;
-    this.innerHTML = `<span class="column-edit-save"><input type="text" id="edited-board-title" value="${currentTitle}" autocomplete="off">
+    this.innerHTML = `<span class="column-edit-save"><input type="text" id="edited-column-title" value="${currentTitle}" autocomplete="off">
                         <button class="board-add" id="save-edited-column">Save</button></span>`;
     let saveButton = document.querySelector('#save-edited-column');
     removeAllEventListeners();
@@ -352,10 +355,9 @@ function saveNewColumnName(event) {
     event.preventDefault();
     let boardId = this.closest('section').id.split('-')[1];
     let columnId = this.closest('.board-column').querySelector('.board-column-content').id.split('-')[2];
-    let newTitle = document.querySelector('#edited-board-title').value;
+    let newTitle = document.querySelector('#edited-column-title').value;
     if (newTitle) {
-        dataHandler.renameColumn(newTitle, boardId, columnId, (result) => displayEditedColumn(result),
-            (error) => displayTakenColumnError(error, '#edited-board-title'))
+        dataHandler.renameColumn(newTitle, boardId, columnId, (result) => displayEditedColumn(result));
     }
 
 }
@@ -364,7 +366,7 @@ function displayEditedColumn(result) {
     if (result !== 'error') {
         let board_id = result[0];
         let column_id = result[1];
-        let editedTitle = document.querySelector('#edited-board-title');
+        let editedTitle = document.querySelector('#edited-column-title');
         let newTitle = editedTitle.value;
         let titleContainer = editedTitle.closest('.board-column-title');
         let deleteX = titleContainer.parentNode.querySelector('i');
@@ -372,11 +374,13 @@ function displayEditedColumn(result) {
         titleContainer.innerHTML = newTitle;
         titleContainer.closest('.board-column').querySelector('.board-column-content').id = `column-${board_id}-${column_id}`;
         addAllEventListeners();
+    } else{
+        displayTakenColumnError('#edited-column-title');
     }
 }
 
-function displayTakenColumnError(error, idName) {
-    let editedTitle = document.querySelector(idName);
+function displayTakenColumnError(selector) {
+    let editedTitle = document.querySelector(selector);
     editedTitle.classList.add("error");
     setTimeout(function () {
         editedTitle.classList.remove("error");
@@ -587,14 +591,14 @@ function removeColumn() {
 }
 
 function removeColumnFromDOM(data) {
-    let boardId = data[0];
-    let statusId = data[1];
+    let boardId = data['boardId'];
+    let columnId = data['columnId'];
     const sections = document.querySelectorAll('section');
     for (let section of sections) {
         if (section.id.split('-')[1] === boardId) {
             const columns = section.querySelectorAll('.board-column');
             for (let column of columns) {
-                if (column.querySelector('.board-column-content').id.split('-')[2] === statusId) {
+                if (column.querySelector('.board-column-content').id.split('-')[2] === columnId) {
                     column.remove();
                 }
             }
