@@ -25,7 +25,15 @@ app.post('/boards', async (req, res) => {
             VALUES ($1)
             RETURNING id`
             , [newTitle]);
-        res.json(result);
+        for (let i = 0; i <4; i++) {
+            await pool.query(
+                `
+                INSERT INTO column_in_board(board_id, status_id, order_by_position)
+                VALUES ($1, $2, $2 + 1)
+                `, [result.rows[0].id, i]
+            );
+        }
+        res.json(result.rows[0].id);
     } catch (error) {
         console.log('An error occured: ' + error);
     }
