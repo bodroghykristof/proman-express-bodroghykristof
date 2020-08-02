@@ -25,7 +25,15 @@ app.post('/boards', async (req, res) => {
             VALUES ($1)
             RETURNING id`
             , [newTitle]);
-        res.json(result);
+        for (let i = 0; i <4; i++) {
+            await pool.query(
+                `
+                INSERT INTO column_in_board(board_id, status_id, order_by_position)
+                VALUES ($1, $2, $2 + 1)
+                `, [result.rows[0].id, i]
+            );
+        }
+        res.json(result.rows[0].id);
     } catch (error) {
         console.log('An error occured: ' + error);
     }
@@ -113,7 +121,7 @@ app.post('/columns', async (req, res) => {
                 WHERE board_id = $1)
                 )
             `, [boardId, columnId]);
-        res.json(boardId);
+        res.json(columnId);
     } catch (error) {
         console.log('Error ' + error);
         res.json('error');
@@ -148,7 +156,7 @@ app.put('/columns', async (req, res) => {
                 `, [columnId, boardId, originalColumnId]
             )
         }
-        res.json(columnId);
+        res.json({boardId, columnId});
     } catch (error) {
         console.log('Error ' + error);
         res.json('error');

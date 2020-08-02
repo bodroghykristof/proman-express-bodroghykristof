@@ -364,8 +364,8 @@ function saveNewColumnName(event) {
 
 function displayEditedColumn(result) {
     if (result !== 'error') {
-        let board_id = result[0];
-        let column_id = result[1];
+        let board_id = result['boardId'];
+        let column_id = result['columnId'];
         let editedTitle = document.querySelector('#edited-column-title');
         let newTitle = editedTitle.value;
         let titleContainer = editedTitle.closest('.board-column-title');
