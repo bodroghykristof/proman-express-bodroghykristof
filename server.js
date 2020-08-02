@@ -113,7 +113,7 @@ app.post('/columns', async (req, res) => {
                 WHERE board_id = $1)
                 )
             `, [boardId, columnId]);
-        res.json(boardId);
+        res.json(columnId);
     } catch (error) {
         console.log('Error ' + error);
         res.json('error');
@@ -148,7 +148,7 @@ app.put('/columns', async (req, res) => {
                 `, [columnId, boardId, originalColumnId]
             )
         }
-        res.json(columnId);
+        res.json({boardId, columnId});
     } catch (error) {
         console.log('Error ' + error);
         res.json('error');
