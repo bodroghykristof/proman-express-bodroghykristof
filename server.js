@@ -3,6 +3,8 @@ import pool from "./database.js";
 
 const app = express();
 app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 const port = 3000;
 
 
@@ -11,7 +13,21 @@ app.get('/boards', async (req, res) => {
         const result = await pool.query('SELECT * FROM board ORDER BY id');
         res.json(result.rows);
     } catch (error) {
-        console.log('An error occured: ' + error)
+        console.log('An error occured: ' + error);
+    }
+});
+
+app.post('/boards', async (req, res) => {
+    try {
+        const newTitle = req.body.boardTitle;
+        const result = await pool.query(
+            `INSERT INTO board(title)
+            VALUES ($1)
+            RETURNING id`
+            , [newTitle]);
+        res.json(result);
+    } catch (error) {
+        console.log('An error occured: ' + error);
     }
 });
 
