@@ -242,6 +242,23 @@ app.delete('/cards', async (req, res) => {
     }
 });
 
+app.put('/cards/position', async (req, res) => {
+    try {
+        const position = req.body.position;
+        const cardId = req.body.cardId;
+        const columnId = req.body.columnId;
+        await pool.query(
+            `
+            UPDATE card
+            SET order_by_position = $1, status_id = $2
+            WHERE id = $3
+            `, [position, columnId, cardId]);
+        res.json(cardId);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
 function getExistingColumnRecord(title) {
     return pool.query(`
         SELECT id

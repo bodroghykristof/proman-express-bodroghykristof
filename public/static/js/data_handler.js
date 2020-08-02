@@ -124,7 +124,7 @@ export let dataHandler = {
         })
     },
     repositionCard: function (cardId, position, columnId) {
-        this._api_put('/update-card', {card_id: cardId, position: position, columnId: columnId}, (response) => {
+        this._api_put('/cards/position', {cardId, position, columnId}, (response) => {
             return response;
         })
     },
