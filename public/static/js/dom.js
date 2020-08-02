@@ -543,7 +543,7 @@ function refreshIndividualColumn(column) {
     let counter = 0;
     for (let row of rows) {
         id = row.id.split('-')[1];
-        arrayPromise.push(dataHandler.updateCard(id, counter, columnId));
+        arrayPromise.push(dataHandler.repositionCard(id, counter, columnId));
         counter++;
     }
     Promise.all(arrayPromise)

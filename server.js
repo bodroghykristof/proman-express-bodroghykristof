@@ -195,6 +195,70 @@ app.get('/cards', async (req, res) => {
     }
 });
 
+app.post('/cards', async (req, res) => {
+    try {
+        const title = req.body.title;
+        const boardId = req.body.boardId;
+        const columnId = req.body.columnId;
+        const result = await pool.query(`
+            INSERT INTO card(title, board_id, status_id, order_by_position)
+            SELECT $1, $2, $3, MAX(order_by_position) + 1
+            FROM card
+            RETURNING id, order_by_position
+            `, [title, boardId, columnId]);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
+app.put('/cards', async (req, res) => {
+    try {
+        const title = req.body.title;
+        const cardId = req.body.cardId;
+        await pool.query(
+            `
+            UPDATE card
+            SET title = $1
+            WHERE id = $2
+            `, [title, cardId]);
+        res.json(cardId);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
+app.delete('/cards', async (req, res) => {
+    try {
+        const cardId = req.body.cardId;
+        await pool.query(
+            `
+            DELETE FROM card
+            WHERE id = $1
+            `, [cardId]);
+        res.json(cardId);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
+app.put('/cards/position', async (req, res) => {
+    try {
+        const position = req.body.position;
+        const cardId = req.body.cardId;
+        const columnId = req.body.columnId;
+        await pool.query(
+            `
+            UPDATE card
+            SET order_by_position = $1, status_id = $2
+            WHERE id = $3
+            `, [position, columnId, cardId]);
+        res.json(cardId);
+    } catch (error) {
+        console.log('An error occured: ' + error)
+    }
+});
+
 function getExistingColumnRecord(title) {
     return pool.query(`
         SELECT id

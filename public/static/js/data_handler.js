@@ -105,29 +105,29 @@ export let dataHandler = {
                 callback(response);
             });
     },
-    addCard: function(boardId, title, statusId, callback) {
-        this._api_post('/add-card', {title: title, board_id: boardId, status_id: statusId}, (response) => {
-            this._data['card_position'] = response;
+    addCard: function(boardId, title, columnId, callback) {
+        this._api_post('/cards', {title, boardId, columnId}, (response) => {
+            this._data['new_card_position'] = response;
             callback(response);
         });
     },
     renameCard: function(cardId, title, callback) {
-        this._api_put('/rename-card', {card_id: cardId, title: title}, (response) => {
-            this._data['card_id'] = response;
+        this._api_put('/cards', {cardId, title}, (response) => {
+            this._data['renamed_card_id'] = response;
             callback(response);
-        })
-    },
-    updateCard: function (cardId, position, columnId) {
-        this._api_put('/update-card', {card_id: cardId, position: position, columnId: columnId}, (response) => {
-            return response;
         })
     },
     deleteCard: function (cardId, callback) {
-        this._api_delete('/delete-card', {card_id: cardId}, (response) => {
-            this._data['card_id'] = response;
+        this._api_delete('/cards', {cardId}, (response) => {
+            this._data['deleted_card_id'] = response;
             callback(response);
         })
-    }
+    },
+    repositionCard: function (cardId, position, columnId) {
+        this._api_put('/cards/position', {cardId, position, columnId}, (response) => {
+            return response;
+        })
+    },
 };
 
 
