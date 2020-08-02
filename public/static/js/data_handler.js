@@ -70,6 +70,11 @@ export let dataHandler = {
             callback(response);
         })
     },
+    changeBoardVisibility: function (boardId) {
+        this._api_put('/boards/visibility', {boardId}, (response) => {
+            this._data['updated_visibility_board_id'] = response;
+        })
+    },
     getStatuses: function (callback) {
         this._api_get('/columns', (response) => {
                 this._data['status'] = response;
@@ -81,11 +86,6 @@ export let dataHandler = {
                 this._data['title'] = response;
                 callback(response);
             });
-    },
-    changeBoardVisibility: function (boardId) {
-        this._api_put('/change-board-visibility', boardId, (response) => {
-            this._data['updated_board_id'] = response;
-        })
     },
     addColumn: function (boardId, title, callback, errorCallback) {
         this._api_post('/add-column', {title: title, board_id: boardId}, (response) => {

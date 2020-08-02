@@ -59,6 +59,20 @@ app.delete('/boards', async (req, res) => {
     }
 });
 
+app.put('/boards/visibility', async (req, res) => {
+    try {
+        const boardId = req.body.boardId;
+        await pool.query(
+            `UPDATE board
+            SET is_active = NOT is_active
+            WHERE id = $1`
+            , [boardId]);
+        res.json(boardId);
+    } catch (error) {
+        console.log('An error occured: ' + error);
+    }
+});
+
 app.get('/columns', async (req, res) => {
     try {
         const result = await pool.query(`
